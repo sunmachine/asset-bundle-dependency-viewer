@@ -2,6 +2,7 @@
     <div class="bgr-selection-nav-container">
         <bundle-graph-selection-nav-button :buttonProps="clearSelectionButton"/>
         <bundle-graph-selection-nav-button :buttonProps="isolateNodeButton"/>
+        <bundle-graph-selection-nav-button :buttonProps="isolateNodeDependentsButton"/>
     </div>
 </template>
 
@@ -22,12 +23,19 @@ export default {
     data() {
         return {
             clearSelectionButton: {
-                name: 'c',
+                name: "clear",
+                toolTip: "Clear selection.",
                 onClick: this.selectionNavProps.onClearSelectedNode
             },
             isolateNodeButton: {
-                name: '⌾',
+                name: "isolate",
+                toolTip: "Isolate selected node.",
                 onClick: this.selectionNavProps.onIsolateSelectedNode
+            },
+            isolateNodeDependentsButton: {
+                name: "isolate-dependents",
+                toolTip: "Isolate dependents.",
+                onClick: this.selectionNavProps.onIsolateSelectedNodeDependents
             }
         }
     }
@@ -45,7 +53,6 @@ export default {
     margin-left: 18px;
     margin-bottom: 18px;
     width: 42px;
-    height: 256px;
 }
 
 .bgr-selection-nav-container p {

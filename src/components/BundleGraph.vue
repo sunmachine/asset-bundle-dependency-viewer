@@ -2,7 +2,7 @@
     <div>
         <bundle-graph-header
             :bundle-count="bundleCount"
-            :visible-bundles-count="visibleBundleCount"
+            :visible-bundles-count="visibleBundlesCount"
             :manifest-path="manifestPath"/>
         <bundle-graph-selection-nav
             :selectionNavProps="selectionNavProps"/>
@@ -29,7 +29,7 @@ export default {
     },
     name: 'BundleGraph',
     created() {
-        graph.setFilters( [] );
+        graph.setFilters([]);
         graph.update();
         this.forceUpdateGraph();
     },
@@ -66,6 +66,7 @@ export default {
                 node: this.selectedNode,
                 onClearSelectedNode: this.onClearSelectedNode,
                 onIsolateSelectedNode: this.onIsolateSelectedNode,
+                onIsolateSelectedNodeDependents: this.onIsolateSelectedNodeDependents
             }
         },
     },
@@ -83,6 +84,10 @@ export default {
             graph.update(this.selectedNode);
             this.forceUpdateGraph();
         },
+        onIsolateSelectedNodeDependents() {
+            graph.update(this.selectedNode);
+            this.forceUpdateGraph();
+        },
         forceUpdateGraph() {
             this.nodes = graph.nodes;
             this.links = graph.links;
@@ -92,7 +97,7 @@ export default {
             this.manifestCrc = graph.manifestCrc;
 
             this.bundleCount = graph.bundleCount;
-            this.visibleBundleCount = graph.visibleBundleCount;
+            this.visibleBundlesCount = graph.visibleBundlesCount;
         }
     }
 }
