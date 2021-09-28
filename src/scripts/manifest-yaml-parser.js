@@ -2,65 +2,100 @@ import BundleInfo from "@/scripts/bundle-info";
 import GraphNode from "@/scripts/graph-node";
 import GraphLink from "@/scripts/graph-link";
 import Filter from "@/scripts/filter";
+import YAML from "yaml";
 
 export default class ManifestYamlParser {
-    constructor(fileBuffer) {
-        this.fileBuffer = fileBuffer;
+
+    fileBuffer = undefined;
+
+    setFile(file, onComplete) {
+        console.log(`Setting file: ${file.name} (${file.type ? file.type : "type/none"})`);
+
+        if (file.type && !file.type.startsWith('text/')) {
+            console.log('File is not a text document. Aborting...', file.type, file);
+            return;
+        }
+
+        file.text().then(buffer => {
+            try {
+                // noinspection JSCheckFunctionSignatures
+                this.fileBuffer = YAML.parse(buffer);
+                this.filePath = file.name;
+                onComplete();
+            } catch (e) {
+                console.error(e);
+                this._onError();
+                onComplete();
+            }
+        });
     }
 
     process(filters, selectedNode) {
+        if (this.fileBuffer === undefined) return;
+        else if (this.fileBuffer === "error") {
+            return this._onError("Problems on parsing provided file buffer.");
+        }
         let buffer = this.fileBuffer;
 
         // Populate top-level manifest details.
         let fileVersion = buffer['ManifestFileVersion'];
         let crc = buffer['CRC'];
-        let bundles = this._parseBundleInfo(
-            buffer['AssetBundleManifest']['AssetBundleInfos']);
+        let manifest = buffer['AssetBundleManifest'];
 
-        // Build all nodes, first.
-        const nodes = this._extractNodes(bundles, filters);
-        const links = this._generateNodeLinks(nodes, (node) => {
-            node._size = 20 + (node.dependencies.length ** 1.5);
-            node._color = "#dcfaf3";
-        });
+        try {
+            // Get bundle data.
+            let bundles = this._parseBundleInfo(manifest['AssetBundleInfos']);
 
-        const result = {
-            manifestFileVersion: fileVersion,
-            crc: crc,
-            bundleCount: bundles.length,
-            visibleBundleCount: bundles.length,
-            nodes: nodes,
-            links: links,
-        };
+            // Build all nodes, first.
+            const nodes = this._extractNodes(bundles, filters);
+            const links = this._generateNodeLinks(nodes, (node) => {
+                node._size = 20 + (node.dependencies.length ** 1.5);
+                node._color = "#dcfaf3";
+            });
 
-        // Filter by selected node. TODO: Refactor into strategy.
-        if (selectedNode !== undefined) {
-            const filteredSelection = [];
-            const filter = function (id) {
-                if (nodes === undefined || id === undefined) return;
-                if (filteredSelection.map(n => n.id).includes(id)) return;
+            const result = {
+                manifestPath: this.filePath,
+                manifestFileVersion: fileVersion,
+                crc: crc,
+                bundleCount: bundles.length,
+                visibleBundlesCount: bundles.length,
+                nodes: nodes,
+                links: links,
+                error: false
+            };
 
-                let node = nodes.find(n => n.id === id);
-                if (node === undefined) return;
+            // Filter by selected node. TODO: Refactor into strategy.
+            if (selectedNode !== undefined) {
+                const filteredSelection = [];
+                const filter = function (id) {
+                    if (nodes === undefined || id === undefined) return;
+                    if (filteredSelection.map(n => n.id).includes(id)) return;
 
-                filteredSelection.push(node);
+                    let node = nodes.find(n => n.id === id);
+                    if (node === undefined) return;
 
-                for (let i in node.dependencies) {
-                    const dependencyId = node.dependencies[i];
-                    filter(dependencyId);
+                    filteredSelection.push(node);
+
+                    for (let i in node.dependencies) {
+                        const dependencyId = node.dependencies[i];
+                        filter(dependencyId);
+                    }
                 }
+
+                filter(selectedNode.id);
+
+                let keyNode = filteredSelection.find(n => n.id === selectedNode.id);
+                keyNode._color = "#FFFF00";
+
+                result.nodes = filteredSelection;
+                result.links = this._generateNodeLinks(filteredSelection);
             }
 
-            filter(selectedNode.id);
-
-            let keyNode = filteredSelection.find(n => n.id === selectedNode.id);
-            keyNode._color = "#FFFF00";
-
-            result.nodes = filteredSelection;
-            result.links = this._generateNodeLinks(filteredSelection);
+            return result;
+        } catch (error) {
+            // console.error(error);
+            return this._onError("Problems while processing file.");
         }
-
-        return result;
     }
 
     _extractNodes(bundles, filters) {
@@ -136,5 +171,16 @@ export default class ManifestYamlParser {
         }
 
         return bundles;
+    }
+
+    _onError(message) {
+        this.filePath = "Please try another file...";
+        this.fileBuffer = "error";
+        return {
+            manifestPath: this.filePath,
+            error: message,
+            nodes: [],
+            links: []
+        };
     }
 }

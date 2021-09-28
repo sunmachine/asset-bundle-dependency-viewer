@@ -64,9 +64,10 @@ export default {
         selectionNavProps: function () {
             return {
                 node: this.selectedNode,
+                onOpenManifestFile: this.onOpenManifestFile,
                 onClearSelectedNode: this.onClearSelectedNode,
                 onIsolateSelectedNode: this.onIsolateSelectedNode,
-                onIsolateSelectedNodeDependents: this.onIsolateSelectedNodeDependents
+                onIsolateSelectedNodeDependents: this.onIsolateSelectedNodeDependents,
             }
         },
     },
@@ -75,6 +76,14 @@ export default {
             if (this.selectedNode !== undefined) this.selectedNode._color = "#DCFAF3";
             this.selectedNode = node;
             this.selectedNode._color = "#FFFF00";
+        },
+        onOpenManifestFile: function (event) {
+            let file = event.target.files[0];
+            this.manifestPath = file.name;
+            graph.setFile(file, () => {
+                graph.update();
+                this.forceUpdateGraph();
+            });
         },
         onClearSelectedNode() {
             graph.update();
@@ -89,15 +98,16 @@ export default {
             this.forceUpdateGraph();
         },
         forceUpdateGraph() {
-            this.nodes = graph.nodes;
-            this.links = graph.links;
+            if (!graph || !graph.graphState) return;
 
-            this.manifestPath = graph.manifestPath;
-            this.manifestFileVersion = graph.manifestFileVersion;
-            this.manifestCrc = graph.manifestCrc;
+            this.manifestPath = graph.graphState.manifestPath;
+            this.manifestFileVersion = graph.graphState.manifestFileVersion;
+            this.manifestCrc = graph.graphState.crc;
+            this.bundleCount = graph.graphState.bundleCount;
+            this.visibleBundlesCount = graph.graphState.visibleBundlesCount;
 
-            this.bundleCount = graph.bundleCount;
-            this.visibleBundlesCount = graph.visibleBundlesCount;
+            this.nodes = graph.graphState.nodes;
+            this.links = graph.graphState.links;
         }
     }
 }

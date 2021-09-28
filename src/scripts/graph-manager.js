@@ -1,41 +1,25 @@
-import YAML from 'yaml';
-import file from '!raw-loader!../assets/manifest.yaml';
 import ManifestYamlParser from "@/scripts/manifest-yaml-parser";
 
 export default class GraphManager {
 
-    filters = undefined;
-
-    manifestPath = undefined;
-    manifestFileVersion = undefined;
-    crc = undefined;
-    bundleCount = undefined;
-    visibleBundleCount = undefined;
-
-    nodes = undefined;
-    links = undefined;
-
+    graphState = undefined;
 
     constructor() {
-        // TODO: Refactor to file-parsing args.
-        this.targetFile = YAML.parse(file);
-        this.parser = new ManifestYamlParser(this.targetFile);
+        this.parser = new ManifestYamlParser();
     }
 
     setFilters(filters) {
         this.filters = filters;
     }
 
+    setFile(file, onComplete) {
+        this.parser.setFile(file, onComplete);
+    }
+
     update(selectedNode) {
-        const output = this.parser.process(this.filters, selectedNode);
+        if (!this.parser.fileBuffer) return;
 
-        this.manifestPath = './assets/manifest.yaml';
-        this.manifestFileVersion = output.manifestFileVersion;
-        this.crc = output.crc;
-        this.bundleCount = output.bundleCount;
-        this.visibleBundleCount = output.nodes.length;
-
-        this.nodes = output.nodes;
-        this.links = output.links;
+        this.graphState = this.parser.process(this.filters, selectedNode);
+        if (this.graphState.nodes) this.graphState.visibleBundlesCount = this.graphState.nodes.length;
     }
 }

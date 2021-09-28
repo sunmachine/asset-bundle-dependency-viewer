@@ -1,5 +1,6 @@
 <template>
     <div class="bgr-selection-nav-container">
+        <bundle-graph-selection-nav-button :buttonProps="openManifestFileButton"/>
         <bundle-graph-selection-nav-button :buttonProps="clearSelectionButton"/>
         <bundle-graph-selection-nav-button :buttonProps="isolateNodeButton"/>
         <bundle-graph-selection-nav-button :buttonProps="isolateNodeDependentsButton"/>
@@ -22,6 +23,11 @@ export default {
     },
     data() {
         return {
+            openManifestFileButton: {
+                name: "open-file",
+                toolTip: "Open manifest file.",
+                onClick: this.selectionNavProps.onOpenManifestFile
+            },
             clearSelectionButton: {
                 name: "clear",
                 toolTip: "Clear selection.",

@@ -37,8 +37,8 @@ export default {
 .bgr-header-container {
     z-index: -10;
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: 0;
+    right: 0;
     user-select: none;
     margin-right: 24px;
     margin-top: 12px;

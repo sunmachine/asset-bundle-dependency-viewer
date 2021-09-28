@@ -1,25 +1,39 @@
 <template>
     <div class="bgr-selection-nav-button"
-         v-if="buttonProps !== undefined"
-         v-on:click="buttonProps.onClick">
+         v-if="buttonProps !== undefined">
         <div class="tooltip">
-            <IsolateImage class="button-icon" id="button-isolate" v-if="buttonProps.name === 'isolate'"/>
-            <IsolateImage class="button-icon" id="button-isolate-dependents" v-if="buttonProps.name === 'isolate-dependents'"/>
-            <CancelImage class="button-icon" id="button-clear-selection" v-if="buttonProps.name === 'clear'"/>
+            <div v-on:click="buttonProps.onClick" v-if="buttonProps.name === 'isolate'">
+                <isolate-image class="button-icon" id="button-isolate"/>
+            </div>
+            <div v-on:click="buttonProps.onClick" v-if="buttonProps.name === 'isolate-dependents'">
+                <isolate-image class="button-icon" id="button-isolate-dependents"/>
+            </div>
+            <div v-on:click="buttonProps.onClick" v-if="buttonProps.name === 'clear'">
+                <cancel-image class="button-icon" id="button-clear-selection"/>
+            </div>
+            <!--https://tympanus.net/codrops/2015/09/15/styling-customizing-file-inputs-smart-way/-->
+            <div v-if="buttonProps.name === 'open-file'">
+                <input type="file" name="file" id="button-open-manifest-file" class="input-file-field"
+                       v-on:change="buttonProps.onClick"/>
+                <label for="button-open-manifest-file">
+                    <open-file-image class="label-icon"/>
+                </label>
+            </div>
             <span class="tooltip-text">{{ buttonProps.toolTip }}</span>
         </div>
-
     </div>
 </template>
 
 <script>
 import IsolateImage from "@/assets/icons/svg/018-notification.svg";
+import OpenFileImage from "@/assets/icons/svg/031-folder.svg";
 import CancelImage from "@/assets/icons/svg/005-cancel.svg";
 
 export default {
     name: "BundleGraphNavButton",
     components: {
         IsolateImage,
+        OpenFileImage,
         CancelImage
     },
     props: {
@@ -85,9 +99,18 @@ export default {
     visibility: visible;
 }
 
-.button-icon {
+.button-icon, .label-icon {
     fill: #bbd6f1;
     padding: 8px;
+}
+
+.input-file-field {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
 }
 
 /* Button-specific SVG settings. */
@@ -96,6 +119,9 @@ export default {
 
 #button-isolate-dependents {
     transform: scaleY(-1);
+}
+
+#button-open-manifest-file {
 }
 
 #button-clear-selection {
