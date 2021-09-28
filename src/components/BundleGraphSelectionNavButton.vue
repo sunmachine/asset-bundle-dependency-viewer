@@ -75,30 +75,6 @@ export default {
     background-color: #d5ecf5;
 }
 
-.tooltip {
-    position: relative;
-    display: inline-block;
-}
-
-.tooltip .tooltip-text {
-    visibility: hidden;
-    background-color: #212226;
-    color: #CADCEA;
-    text-align: center;
-    border-radius: 6px;
-    padding: 8px;
-    margin-left: 8px;
-    width: 10em;
-
-    /* Position the tooltip */
-    position: absolute;
-    z-index: 1;
-}
-
-.tooltip:hover .tooltip-text {
-    visibility: visible;
-}
-
 .button-icon, .label-icon {
     fill: #bbd6f1;
     padding: 8px;
@@ -112,6 +88,31 @@ export default {
     position: absolute;
     z-index: -1;
 }
+
+.tooltip {
+    position: relative;
+    display: inline-flex;
+}
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    background-color: #212226;
+    color: #CADCEA;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    width: 10em;
+
+    /* Position the tooltip */
+    position: absolute;
+    margin-left: 42px;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+}
+
 
 /* Button-specific SVG settings. */
 #button-isolate {
