@@ -1,0 +1,35 @@
+ManifestFileVersion: 0
+CRC: 0123456789
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: bundle-00
+      Dependencies:
+        Dependency_0: bundle-01
+        Dependency_1: bundle-02
+    Info_1:
+      Name: bundle-01
+      Dependencies:
+        Dependency_0: bundle-02
+        Dependency_1: bundle-03
+        Dependency_2: bundle-04
+    Info_2:
+      Name: bundle-02
+      Dependencies:
+        Dependency_0: {}
+    Info_3:
+      Name: bundle-03
+      Dependencies:
+        Dependency_0: {}
+    Info_4:
+      Name: bundle-04
+      Dependencies:
+        Dependency_0: {}
+    Info_5:
+      Name: bundle-05
+      Dependencies:
+        Dependency_0: bundle-00
+    Info_6:
+      Name: bundle-06
+      Dependencies:
+        Dependency_0: {}

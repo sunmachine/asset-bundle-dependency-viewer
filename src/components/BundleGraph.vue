@@ -1,19 +1,102 @@
 <template>
-  <div class="graph">
-    <h1>Asset Bundle Dependency Graph</h1>
-  </div>
+    <div>
+        <bundle-graph-header
+            :bundle-count="bundleCount"
+            :visible-bundles-count="visibleBundleCount"
+            :manifest-path="manifestPath"/>
+        <bundle-graph-selection-nav
+            :selectionNavProps="selectionNavProps"/>
+        <d3-network
+            :net-nodes="nodes"
+            :net-links="links"
+            :options="options" v-on:node-click="onSelectedNode"/>
+    </div>
 </template>
 
 <script>
+import D3Network from "vue-d3-network";
+import BundleGraphHeader from "@/components/BundleGraphHeader";
+import BundleGraphSelectionNav from "@/components/BundleGraphSelectionNav";
+import GraphManager from "@/scripts/graph-manager";
+
+const graph = new GraphManager();
+
 export default {
-  name: 'BundleGraph',
-  props: {
-  }
+    components: {
+        BundleGraphSelectionNav,
+        BundleGraphHeader,
+        D3Network
+    },
+    name: 'BundleGraph',
+    created() {
+        graph.setFilters( [] );
+        graph.update();
+        this.forceUpdateGraph();
+    },
+    data() {
+        return {
+            // Interactive reactive variables.
+            selectedNode: undefined,
+
+            // Graph mappings.
+            manifestPath: undefined,
+            manifestFileVersion: undefined,
+            manifestCrc: undefined,
+            bundleCount: undefined,
+            visibleBundlesCount: undefined,
+            nodes: [],
+            links: [],
+
+            // vue-d3-network options.
+            options: {
+                size: {
+                    w: window.innerWidth,
+                    h: window.innerHeight
+                },
+                force: 1600,
+                nodeLabels: true,
+                linkWidth: 1,
+                canvas: false,
+            },
+        }
+    },
+    computed: {
+        selectionNavProps: function () {
+            return {
+                node: this.selectedNode,
+                onClearSelectedNode: this.onClearSelectedNode,
+                onIsolateSelectedNode: this.onIsolateSelectedNode,
+            }
+        },
+    },
+    methods: {
+        onSelectedNode(event, node) {
+            if (this.selectedNode !== undefined) this.selectedNode._color = "#DCFAF3";
+            this.selectedNode = node;
+            this.selectedNode._color = "#FFFF00";
+        },
+        onClearSelectedNode() {
+            graph.update();
+            this.forceUpdateGraph();
+        },
+        onIsolateSelectedNode() {
+            graph.update(this.selectedNode);
+            this.forceUpdateGraph();
+        },
+        forceUpdateGraph() {
+            this.nodes = graph.nodes;
+            this.links = graph.links;
+
+            this.manifestPath = graph.manifestPath;
+            this.manifestFileVersion = graph.manifestFileVersion;
+            this.manifestCrc = graph.manifestCrc;
+
+            this.bundleCount = graph.bundleCount;
+            this.visibleBundleCount = graph.visibleBundleCount;
+        }
+    }
 }
 </script>
 
-<style scoped>
-.graph {
-
-}
+<style src="vue-d3-network/dist/vue-d3-network.css">
 </style>
